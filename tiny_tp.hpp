@@ -14,7 +14,7 @@ namespace tiny_tp {  // definitions
 /// @brief Interface for tasks to be executed by the `ThreadPool`.
 class ITask {
  public:
-  virtual std::shared_ptr<void> Run() = 0;
+  virtual std::shared_ptr<void> Execute() = 0;
 };
 
 /// @brief A thread pool class for executing tasks concurrently.
@@ -49,7 +49,7 @@ class ThreadPool {
   class QuitTask : public ITask {
    public:
     QuitTask(std::shared_ptr<std::uint32_t> mark) : exit_mark_{mark} {}
-    std::shared_ptr<void> Run() override { return exit_mark_; }
+    std::shared_ptr<void> Execute() override { return exit_mark_; }
 
    private:
     std::shared_ptr<std::uint32_t> exit_mark_;
@@ -129,7 +129,7 @@ void ThreadPool::Cycle() {
     waiting_queue_.pop();
     waiting_queue_unilock.unlock();
 
-    auto result = task->Run();
+    auto result = task->Execute();
     // Process the result of the task execution
     if (result != nullptr) {
       if (result == exit_mark_) {
