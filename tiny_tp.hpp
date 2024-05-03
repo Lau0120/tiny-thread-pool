@@ -69,6 +69,8 @@ class ThreadPool {
   std::shared_ptr<std::uint32_t> exit_mark_;
 };
 
+constexpr std::uint32_t ThreadPool::kDefaultMaxQueueSize;
+
 }  // namespace tiny_tp
 
 namespace tiny_tp {  // implementations
