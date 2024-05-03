@@ -30,13 +30,13 @@ pointer to a specific struct.
 
 ```c++
 // To define a task, you need to inherit ITask interface and to override the
-// only pure virtual function `Run`.
+// only pure virtual function `Execute`.
 
 class TraditionalTask : public tiny_tp::ITask {
  public:
   TraditionalTask(std::shared_ptr<void> context)
       : ctx_{ context } {}
-  std::shared_ptr<void> Run() override {
+  std::shared_ptr<void> Execute() override {
     // Do something with `context_`.
     return nullptr;
   }
@@ -48,7 +48,7 @@ class CommonTask : public tiny_tp::ITask {
  public:
   CommonTask(const std::string& arg1, int arg2, double arg3)
       : arg1_{ arg1 }, arg2_{ arg2 }, arg3_{ arg3 } {}
-  std::shared_ptr<void> Run() override {
+  std::shared_ptr<void> Execute() override {
     // Do something with `arg1_`, `arg2_` and `arg3_`.
     return nullptr;
   }
@@ -76,7 +76,7 @@ tiny_tp::ThreadPool tp3(8);
 ### 3.3. Interact with the thread pool
 
 You can drop any type of task instance (implemented the `ITask` interface) to
-the thread pool. For tasks with results (the result of `Run` method is not
+the thread pool. For tasks with results (the result of `Execute` method is not
 `nullptr`), you can alsow retrieve them from the thread pool, but the order is
 not guaranteed.
 
@@ -98,7 +98,11 @@ for (auto result : results) {
 Here is an example that simulates the producer-consumer model.
 
 ```c++
+#ifdef _WIN32
+#include <Windows.h>
+#else
 #include <unistd.h>
+#endif
 
 #include <cstdio>
 #include <memory>
@@ -110,10 +114,14 @@ class CommonTask : public tiny_tp::ITask {
  public:
   CommonTask(int id, unsigned execution_time)
       : id_{id}, execution_time_{execution_time} {}
-  std::shared_ptr<void> Run() override {
+  std::shared_ptr<void> Execute() override {
     std::printf("Task[%d] is executing (%d seconds)...\n", id_,
                 execution_time_);
+#ifdef _WIN32
+    Sleep(execution_time_ * 1000);
+#else
     sleep(execution_time_);
+#endif
     return std::make_shared<int>(id_);
   }
 
@@ -137,7 +145,11 @@ int main(void) {
       tp.Drop(std::make_shared<CommonTask>(kTaskSequence++, execution_time));
     }
     std::printf("Waiting for %d seconds\n", kWaitingSeconds);
+#ifdef _WIN32
+    Sleep(kWaitingSeconds * 1000);
+#else
     sleep(kWaitingSeconds);
+#endif
     auto results = tp.GrabAllResults();
     for (auto result : results) {
       auto task_id = std::static_pointer_cast<int>(result);
