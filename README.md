@@ -59,6 +59,11 @@ class CommonTask : public tiny_tp::ITask {
 };
 ```
 
+Please note that tiny thread pool only releases IDLE threads, which means that 
+if you put an endless loop in `Execute` method of your task, it could
+potentially lead to a thread resource leak. So it’s best not to do that, but if
+you do, you must take responsibility for exiting such tasks.
+
 ### 3.2. Create a thread pool instance
 
 You can create multiple thread pool instances in your program, and they do not
@@ -93,75 +98,22 @@ for (auto result : results) {
 }
 ```
 
-### 3.4. An example
+### 3.4. Examples
 
-Here is an example that simulates the producer-consumer model.
+Here are some short example programs in `examples` directory, some of which are
+inspirational and reuseable. Please remember, the thread pool is simply a way to
+manage thread resources. That’s why I only provided some of the most basic
+functionalities. You can extend it to solve a specific problem in a particular
+scenario, just like `timer.cpp` and `timeout.cpp` in the examples.
 
-```c++
-#ifdef _WIN32
-#include <Windows.h>
-#else
-#include <unistd.h>
-#endif
+- producer_consumer.cpp
+  - an basic example that simulates the producer-consumer model.
+- timer.cpp
+  - an example that shows how to implement timer task.
+- timeout.cpp
+  - an example that shows how to implement timeout task.
 
-#include <cstdio>
-#include <memory>
-#include <random>
-
-#include "../tiny_tp.hpp"
-
-class CommonTask : public tiny_tp::ITask {
- public:
-  CommonTask(int id, unsigned execution_time)
-      : id_{id}, execution_time_{execution_time} {}
-  std::shared_ptr<void> Execute() override {
-    std::printf("Task[%d] is executing (%d seconds)...\n", id_,
-                execution_time_);
-#ifdef _WIN32
-    Sleep(execution_time_ * 1000);
-#else
-    sleep(execution_time_);
-#endif
-    return std::make_shared<int>(id_);
-  }
-
- private:
-  int id_;
-  unsigned execution_time_;
-};
-
-static int kTaskSequence = 10000;
-constexpr unsigned kWaitingSeconds = 3;
-int main(void) {
-  std::default_random_engine e;
-  std::uniform_int_distribution<unsigned> rt(1, 5);
-  std::uniform_int_distribution<unsigned> rc(3, 5);
-
-  tiny_tp::ThreadPool tp;
-  while (true) {
-    unsigned task_cnt = rc(e);
-    for (unsigned i = 0; i < task_cnt; ++i) {
-      unsigned execution_time = rt(e);
-      tp.Drop(std::make_shared<CommonTask>(kTaskSequence++, execution_time));
-    }
-    std::printf("Waiting for %d seconds\n", kWaitingSeconds);
-#ifdef _WIN32
-    Sleep(kWaitingSeconds * 1000);
-#else
-    sleep(kWaitingSeconds);
-#endif
-    auto results = tp.GrabAllResults();
-    for (auto result : results) {
-      auto task_id = std::static_pointer_cast<int>(result);
-      std::printf("Task[%d] is complete...\n", *task_id);
-    }
-    printf("\n");
-  }
-  return 0;
-}
-```
-
-Through the above example, we see how to easily manage concurrent task execution
+Through the above examples, we see how to easily manage concurrent task execution
 using tiny-thread-pool. While it may not be suitable for all scenarios, it
 provides a lightweight and easy-to-use solution for simple concurrency needs.
 
