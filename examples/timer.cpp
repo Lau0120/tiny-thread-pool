@@ -1,3 +1,10 @@
+/// @file timer.cpp
+/// @brief An example that shows how to implement timer task
+/// @version 1.0.0
+/// @copyright MIT License
+/// @author Lau0120
+/// @date 2024/05/06
+
 #include <chrono>
 #include <cstdio>
 
