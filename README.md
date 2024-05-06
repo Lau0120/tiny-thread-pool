@@ -106,7 +106,7 @@ manage thread resources. That’s why I only provided some of the most basic
 functionalities. You can extend it to solve a specific problem in a particular
 scenario, just like `timer.cpp` and `timeout.cpp` in the examples.
 
-- model.cpp
+- basic.cpp
   - A basic example that simulates the producer-consumer model.
 - timer.cpp
   - An example that shows how to implement timer task.
