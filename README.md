@@ -8,7 +8,7 @@ A simple cross-platform thread pool based on the C++
 so any compiler that implements this standard can compile it.
 - Simple: All you need to know is to define different task types based on your
 actual needs, and then drop task instances to the thread pool.
-- Lightweight: The implementation and comments combined are no more than 150
+- Lightweight: The implementation and comments combined are no more than 200
 lines.
 - Easy: All implementations follow the RAII principle as much as possible, which
 means you don’t need to worry about creating and destroying threads. The thread
@@ -106,12 +106,12 @@ manage thread resources. That’s why I only provided some of the most basic
 functionalities. You can extend it to solve a specific problem in a particular
 scenario, just like `timer.cpp` and `timeout.cpp` in the examples.
 
-- producer_consumer.cpp
-  - an basic example that simulates the producer-consumer model.
+- model.cpp
+  - A basic example that simulates the producer-consumer model.
 - timer.cpp
-  - an example that shows how to implement timer task.
+  - An example that shows how to implement timer task.
 - timeout.cpp
-  - an example that shows how to implement timeout task.
+  - An example that shows how to implement timeout task.
 
 Through the above examples, we see how to easily manage concurrent task execution
 using tiny-thread-pool. While it may not be suitable for all scenarios, it
