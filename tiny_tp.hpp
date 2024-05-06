@@ -1,3 +1,10 @@
+/// @file tiny_tp.hpp
+/// @brief A simple cross-platform thread pool based on the C++
+/// @version 1.0.0
+/// @copyright MIT License
+/// @author Lau0120
+/// @date 2024/05/06
+
 #ifndef TINY_TP_HPP_
 #define TINY_TP_HPP_
 
