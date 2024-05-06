@@ -1,9 +1,4 @@
-#ifdef _WIN32
-#include <Windows.h>
-#else
-#include <unistd.h>
-#endif
-
+#include <chrono>
 #include <cstdio>
 #include <memory>
 #include <random>
@@ -17,11 +12,7 @@ class CommonTask : public tiny_tp::ITask {
   std::shared_ptr<void> Execute() override {
     std::printf("Task[%d] is executing (%d seconds)...\n", id_,
                 execution_time_);
-#ifdef _WIN32
-    Sleep(execution_time_ * 1000);
-#else
-    sleep(execution_time_);
-#endif
+    std::this_thread::sleep_for(std::chrono::seconds(execution_time_));
     return std::make_shared<int>(id_);
   }
 
@@ -45,11 +36,7 @@ int main(void) {
       tp.Drop(std::make_shared<CommonTask>(kTaskSequence++, execution_time));
     }
     std::printf("Waiting for %d seconds\n", kWaitingSeconds);
-#ifdef _WIN32
-    Sleep(kWaitingSeconds * 1000);
-#else
-    sleep(kWaitingSeconds);
-#endif
+    std::this_thread::sleep_for(std::chrono::seconds(kWaitingSeconds));
     auto results = tp.GrabAllResults();
     for (auto result : results) {
       auto task_id = std::static_pointer_cast<int>(result);
